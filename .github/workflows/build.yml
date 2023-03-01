@@ -21,6 +21,11 @@ jobs:
       - name: make
         run: |
           make
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: bin
+          path: bin/
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
