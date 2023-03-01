@@ -1,0 +1,41 @@
+build-env:
+  build_only: true
+  from:
+    type: docker
+    url: ${{DOCKER_BASE}}ubuntu:jammy
+  run: |
+    #!/bin/bash -ex
+    deps=(
+        pkg-config git golang make ca-certificates gcc
+        libbtrfs-dev libdevmapper-dev libgpgme-dev libostree-dev
+    )
+    apt-get update --option=APT::Update::Error-Mode=any
+    apt-get install --assume-yes --no-install-recommends \
+        --option=Dpkg::options::=--force-unsafe-io \
+        "${deps[@]}"
+
+build:
+  build_only: true
+  from:
+    type: built
+    tag: build-env
+  run: |
+    SKOPEO_VERSION="v1.11.1"
+
+    mkdir /export
+
+    export GOCACHE=/build/go-cache
+    mkdir -p /build
+    cd /build
+    git clone --depth=1 --branch=$SKOPEO_VERSION \
+        https://github.com/containers/skopeo.git
+
+    cd skopeo
+    git reset --hard ${SKOPEO_VERSION}
+    make bin/skopeo \
+         CFLAGS='-static -pthread' \
+         LDFLAGS='-s -w -static-libgcc -static' \
+         EXTRA_LDFLAGS='-s -w -linkmode external -extldflags "-static -lm"' \
+         BUILDTAGS='static netgo osusergo exclude_graphdriver_btrfs exclude_graphdriver_devicemapper'
+
+    cp bin/skopeo /export
