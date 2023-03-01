@@ -25,7 +25,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: cuddles
+          name: machine-tools
           path: bin/
       - name: Release
         uses: softprops/action-gh-release@v1
