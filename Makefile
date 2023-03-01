@@ -1,12 +1,13 @@
 DOCKER_BASE ?= docker://
-BINS := bin/skopeo
+BINS := skopeo
 
 .PHONY: build
 build:
 	stacker build --substitute=DOCKER_BASE=$(DOCKER_BASE)
 
-bin/%: build
-	stacker grab build:export/$* && mv $* bin/$*
-
 .PHONY: bins
-bins: $(BINS)
+bins: build
+	@mkdir -p bin
+	for f in $(BINS); do \
+		stacker grab "build:export/$$f" && \
+	    mv $$f bin/$$f; done

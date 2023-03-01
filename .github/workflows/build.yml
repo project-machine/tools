@@ -20,11 +20,11 @@ jobs:
           chmod 755 ~/bin/stacker
       - name: make
         run: |
-          make
+          make bins
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: bin
+          name: cuddles
           path: bin/
       - name: Release
         uses: softprops/action-gh-release@v1
